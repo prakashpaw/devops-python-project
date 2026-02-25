@@ -1,0 +1,38 @@
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  DOCKER_IMAGE: "pawarpr/python-devops-app:latest"
+
+# Run Tests first - if these fail, the build stops!
+run_tests:
+  stage: test
+  image: python:3.11-slim
+  script:
+    - pip install poetry
+    - poetry install
+    - poetry run pytest
+
+# Build the Docker image using our multi-stage Dockerfile
+build_app:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker build -t $DOCKER_IMAGE .
+    - docker push $DOCKER_IMAGE
+
+# Provision & Deploy via Terraform
+deploy_infrastructure:
+  stage: deploy
+  image: 
+    name: hashicorp/terraform:latest
+    entrypoint: [""]
+  script:
+    - cd terraform
+    - terraform init
+    - terraform apply -auto-approve
