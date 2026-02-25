@@ -24,7 +24,7 @@ async def analyze_data(data: dict):
     
     AI_TASKS_COUNTER.labels(status='success').inc()
     return {
-        "insight": "Data is processed successfully",
+        "insight": "Datas processed successfully",
         "latency": f"{process_time:.2f}s",
         "result": random.choice(["Positive", "Neutral", "Action Required"])
     }
